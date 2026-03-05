@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HarshLabs.ai — AI Automation for Local Businesses</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-blue: #00d4ff;
+    --neon-purple: #b400ff;
+    --neon-green: #00ff88;
+    --bg-dark: #050810;
+    --bg-card: #0a0f1e;
+    --bg-card2: #080d1a;
+    --text-dim: #6a7a99;
+    --text-bright: #e0eeff;
+    --glow-blue: 0 0 20px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.2);
+    --glow-purple: 0 0 20px rgba(180,0,255,0.5), 0 0 60px rgba(180,0,255,0.2);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-bright);
+    font-family: 'Exo 2', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--neon-blue);
+    position: fixed; pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    box-shadow: var(--glow-blue);
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,212,255,0.4);
+    position: fixed; pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.15s, width 0.2s, height 0.2s;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none; z-index: 100;
+  }
+
+  /* Grid background */
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Holographic aurora background */
+  .holo-bg {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .holo-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.12;
+    animation: blobDrift linear infinite;
+  }
+  .holo-blob:nth-child(1) {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #00d4ff, #b400ff);
+    top: -150px; left: -100px;
+    animation-duration: 18s;
+  }
+  .holo-blob:nth-child(2) {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #ff00cc, #00d4ff);
+    top: 30%; right: -150px;
+    animation-duration: 24s;
+    animation-direction: reverse;
+    opacity: 0.09;
+  }
+  .holo-blob:nth-child(3) {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #00ff88, #b400ff);
+    bottom: -100px; left: 30%;
+    animation-duration: 20s;
+    opacity: 0.08;
+  }
+  .holo-blob:nth-child(4) {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #ffcc00, #00d4ff);
+    top: 20%; left: 40%;
+    animation-duration: 30s;
+    opacity: 0.06;
+  }
+  @keyframes blobDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    25%  { transform: translate(40px, -30px) scale(1.05); }
+    50%  { transform: translate(-20px, 50px) scale(0.95); }
+    75%  { transform: translate(30px, 20px) scale(1.08); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  /* Holographic shimmer overlay */
+  .holo-prism {
+    position: fixed; inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(0,212,255,0.015) 20%,
+      rgba(180,0,255,0.02) 35%,
+      rgba(0,255,136,0.015) 50%,
+      rgba(255,0,200,0.015) 65%,
+      rgba(0,212,255,0.02) 80%,
+      transparent 100%
+    );
+    background-size: 300% 300%;
+    animation: prismShift 12s ease-in-out infinite;
+    pointer-events: none; z-index: 0;
+  }
+  @keyframes prismShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 40px;
+    background: linear-gradient(180deg, rgba(5,8,16,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+  }
+  .nav-logo span { color: var(--neon-purple); }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+  .nav-links a:hover {
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+  }
+
+  /* HERO */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 40px 60px;
+    overflow: hidden;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 680px;
+    animation: fadeInUp 1s ease both;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--neon-green);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    background: rgba(0,255,136,0.05);
+    letter-spacing: 0.1em;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    animation: pulse 2s infinite;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .hero-title .accent-blue {
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+  }
+  .hero-title .accent-purple {
+    color: var(--neon-purple);
+    text-shadow: var(--glow-purple);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+  .hero-sub strong { color: var(--text-bright); font-weight: 600; }
+
+  .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn-primary {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: none;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 0 30px rgba(0,212,255,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(0,212,255,0.5), 0 0 100px rgba(180,0,255,0.3);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .btn-primary:hover::after { opacity: 1; }
+
+  .btn-secondary {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    padding: 14px 32px;
+    background: transparent;
+    color: var(--neon-blue);
+    border: 1px solid rgba(0,212,255,0.4);
+    border-radius: 4px;
+    cursor: none;
+    text-decoration: none;
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--neon-blue);
+    background: rgba(0,212,255,0.08);
+    box-shadow: var(--glow-blue);
+  }
+
+  /* Hero avatar area */
+  .hero-visual {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+
+  .avatar-container {
+    position: relative; width: 420px; height: 420px;
+    perspective: 800px;
+  }
+
+  .avatar-rings {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: spin linear infinite;
+  }
+  .ring:nth-child(1) {
+    width: 340px; height: 340px;
+    border-color: rgba(0,212,255,0.15);
+    animation-duration: 20s;
+  }
+  .ring:nth-child(2) {
+    width: 280px; height: 280px;
+    border-color: rgba(180,0,255,0.2);
+    animation-duration: 15s;
+    animation-direction: reverse;
+  }
+  .ring:nth-child(3) {
+    width: 380px; height: 380px;
+    border-color: rgba(0,255,136,0.08);
+    animation-duration: 30s;
+    border-style: dashed;
+  }
+  .ring::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--neon-blue);
+    position: absolute; top: -4px; left: 50%;
+    box-shadow: var(--glow-blue);
+  }
+  .ring:nth-child(2)::after { background: var(--neon-purple); box-shadow: var(--glow-purple); }
+
+  /* 3D Photo Frame */
+  .avatar-3d-wrapper {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+    /* float animation — JS adds scroll-rotate and mouse-tilt on top */
+    animation: avatarFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes avatarFloat {
+    0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+    50%       { transform: translateY(-18px) rotateX(0deg) rotateY(0deg); }
+  }
+
+  .avatar-photo-frame {
+    width: 200px; height: 230px;
+    position: relative;
+    transform-style: preserve-3d;
+  }
+
+  /* Holographic border glow */
+  .avatar-photo-frame::before {
+    content: '';
+    position: absolute; inset: -3px;
+    border-radius: 8px;
+    background: linear-gradient(
+      135deg,
+      #00d4ff, #b400ff, #00ff88, #ff00cc, #00d4ff
+    );
+    background-size: 300% 300%;
+    animation: holoBorder 4s linear infinite;
+    z-index: -1;
+    filter: blur(4px);
+    opacity: 0.85;
+  }
+  .avatar-photo-frame::after {
+    content: '';
+    position: absolute; inset: -1px;
+    border-radius: 8px;
+    background: linear-gradient(
+      135deg, #00d4ff, #b400ff, #00ff88, #00d4ff
+    );
+    background-size: 300% 300%;
+    animation: holoBorder 4s linear infinite;
+    z-index: -1;
+    opacity: 0.6;
+  }
+  @keyframes holoBorder {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .avatar-photo {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+    position: relative; z-index: 1;
+  }
+
+  /* Placeholder when no photo yet */
+  .avatar-placeholder {
+    width: 100%; height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(160deg, rgba(0,212,255,0.15), rgba(180,0,255,0.1));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; position: relative; z-index: 1;
+  }
+  .avatar-placeholder .ph-icon { font-size: 3.5rem; }
+  .avatar-placeholder .ph-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--neon-blue);
+    letter-spacing: 0.15em;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* Holographic scan line on photo */
+  .avatar-scan {
+    position: absolute; inset: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    pointer-events: none; z-index: 2;
+  }
+  .avatar-scan::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.8), transparent);
+    animation: scanLine 3s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,212,255,0.6);
+  }
+  @keyframes scanLine {
+    0%   { top: 0%; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Holo reflection overlay on photo */
+  .avatar-holo-overlay {
+    position: absolute; inset: 0;
+    border-radius: 6px;
+    background: linear-gradient(
+      135deg,
+      rgba(0,212,255,0.08) 0%,
+      rgba(180,0,255,0.06) 30%,
+      rgba(0,255,136,0.05) 60%,
+      rgba(255,0,200,0.06) 100%
+    );
+    background-size: 200% 200%;
+    animation: holoOverlay 5s ease-in-out infinite;
+    pointer-events: none; z-index: 3;
+    mix-blend-mode: screen;
+  }
+  @keyframes holoOverlay {
+    0%, 100% { background-position: 0% 0%; opacity: 0.6; }
+    50% { background-position: 100% 100%; opacity: 1; }
+  }
+
+  .avatar-label {
+    position: absolute;
+    bottom: 46px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+    white-space: nowrap;
+  }
+
+  /* Floating data points */
+  .data-point {
+    position: absolute;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(0,212,255,0.6);
+    animation: float 4s ease-in-out infinite;
+  }
+  .data-point:nth-child(1) { top: 20%; left: 5%; animation-delay: 0s; }
+  .data-point:nth-child(2) { top: 40%; right: 5%; animation-delay: 1s; }
+  .data-point:nth-child(3) { bottom: 25%; left: 10%; animation-delay: 2s; }
+  .data-point:nth-child(4) { top: 15%; right: 20%; animation-delay: 0.5s; color: rgba(180,0,255,0.6); }
+
+  /* Stats bar */
+  .hero-stats {
+    display: flex; gap: 40px; margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(0,212,255,0.1);
+  }
+  .stat { }
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--neon-blue);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* SECTION GENERIC */
+  section {
+    position: relative; z-index: 2;
+    padding: 100px 40px;
+  }
+
+  .section-header {
+    text-align: center; margin-bottom: 64px;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--neon-purple);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .section-title span { color: var(--neon-blue); }
+
+  /* SERVICES */
+  #services { background: radial-gradient(ellipse at top, rgba(0,212,255,0.03) 0%, transparent 70%); }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px; max-width: 1100px; margin: 0 auto;
+  }
+
+  .service-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 8px;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    animation: fadeInUp 0.8s ease both;
+  }
+
+  .service-card:hover {
+    border-color: var(--neon-blue);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0,212,255,0.15);
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .service-card:hover::before { opacity: 1; }
+
+  .service-icon {
+    font-size: 2.2rem; margin-bottom: 20px;
+    display: block;
+  }
+
+  .service-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .service-desc {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .service-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--neon-blue);
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.1em;
+  }
+
+  /* DEMO SECTION */
+  #demo {
+    background: radial-gradient(ellipse at center, rgba(180,0,255,0.04) 0%, transparent 70%);
+  }
+
+  .demo-wrapper {
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    align-items: start;
+  }
+
+  .demo-info h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .demo-info p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .demo-scenarios {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .scenario-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid rgba(0,212,255,0.15);
+    color: var(--text-dim);
+    border-radius: 4px;
+    cursor: none;
+    text-align: left;
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
+    letter-spacing: 0.03em;
+  }
+
+  .scenario-btn:hover, .scenario-btn.active {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    background: rgba(0,212,255,0.05);
+  }
+
+  .chatbox {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 14px 20px;
+    background: rgba(0,212,255,0.05);
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .chat-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .chat-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+  }
+  .chat-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--neon-green);
+  }
+
+  .chat-messages {
+    padding: 20px; min-height: 300px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  .msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    animation: msgIn 0.3s ease both;
+  }
+  .msg.user {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--text-bright);
+    align-self: flex-end;
+  }
+  .msg.bot {
+    background: rgba(180,0,255,0.1);
+    border: 1px solid rgba(180,0,255,0.2);
+    color: var(--text-bright);
+    align-self: flex-start;
+  }
+  .msg .sender {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    opacity: 0.6;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .typing-indicator {
+    display: flex; gap: 4px; align-items: center; padding: 4px 0;
+  }
+  .typing-indicator span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--neon-purple); opacity: 0.6;
+    animation: typingBounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* TECH STACK */
+  #stack {
+    background: var(--bg-card2);
+    border-top: 1px solid rgba(0,212,255,0.07);
+    border-bottom: 1px solid rgba(0,212,255,0.07);
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto;
+  }
+
+  .stack-item {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 6px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .stack-item:hover {
+    border-color: var(--neon-blue);
+    transform: translateY(-3px);
+  }
+  .stack-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+  .stack-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--neon-blue);
+    letter-spacing: 0.05em;
+  }
+
+  /* CONTACT */
+  #contact {
+    background: radial-gradient(ellipse at bottom, rgba(0,212,255,0.05) 0%, transparent 70%);
+    text-align: center;
+  }
+
+  .contact-card {
+    max-width: 600px; margin: 0 auto;
+    background: var(--bg-card);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 12px;
+    padding: 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+  }
+
+  .contact-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .contact-sub {
+    color: var(--text-dim);
+    margin-bottom: 36px;
+    font-size: 0.95rem;
+  }
+
+  .contact-buttons {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  }
+
+  .contact-btn {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    padding: 12px 24px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.3s;
+    cursor: none;
+    letter-spacing: 0.05em;
+  }
+  .contact-btn:hover { transform: translateY(-3px); }
+
+  .contact-btn.whatsapp {
+    background: rgba(0,255,136,0.1);
+    color: var(--neon-green);
+    border: 1px solid rgba(0,255,136,0.3);
+  }
+  .contact-btn.whatsapp:hover { box-shadow: 0 0 30px rgba(0,255,136,0.3); }
+
+  .contact-btn.instagram {
+    background: rgba(180,0,255,0.1);
+    color: var(--neon-purple);
+    border: 1px solid rgba(180,0,255,0.3);
+  }
+  .contact-btn.instagram:hover { box-shadow: var(--glow-purple); }
+
+  .contact-btn.email {
+    background: rgba(0,212,255,0.1);
+    color: var(--neon-blue);
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+  .contact-btn.email:hover { box-shadow: var(--glow-blue); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 32px 40px;
+    border-top: 1px solid rgba(0,212,255,0.07);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    position: relative; z-index: 2;
+  }
+
+  footer strong { color: var(--neon-blue); }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); opacity: 0.6; }
+    50% { transform: translateY(-12px); opacity: 1; }
+  }
+  @keyframes hexGlow {
+    from { box-shadow: 0 0 20px rgba(0,212,255,0.2), inset 0 0 30px rgba(0,212,255,0.05); }
+    to { box-shadow: 0 0 60px rgba(180,0,255,0.4), inset 0 0 50px rgba(180,0,255,0.1); }
+  }
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+  @keyframes scanline {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100vh); }
+  }
+
+  /* Particle canvas */
+  #particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    #hero { padding: 100px 20px 60px; }
+    .hero-visual { display: none; }
+    .hero-content { max-width: 100%; }
+    section { padding: 72px 20px; }
+    .demo-wrapper { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; }
+    .contact-card { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+<div class="holo-bg">
+  <div class="holo-blob"></div>
+  <div class="holo-blob"></div>
+  <div class="holo-blob"></div>
+  <div class="holo-blob"></div>
+</div>
+<div class="holo-prism"></div>
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">HARSH<span>LABS</span>.AI</div>
+  <ul class="nav-links">
+    <li><a href="#services">SERVICES</a></li>
+    <li><a href="#demo">DEMO</a></li>
+    <li><a href="#stack">STACK</a></li>
+    <li><a href="#contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🤖 AI AUTOMATION SYSTEMS — LIVE</div>
+
+    <h1 class="hero-title">
+      Ghaziabad Business.<br>
+      <span class="accent-blue">Intelligent</span><br>
+      <span class="accent-purple">Automation.</span>
+    </h1>
+
+    <p class="hero-sub">
+      I build <strong>AI-powered automation systems</strong> for WhatsApp, Instagram DMs, and business workflows — helping local businesses in Delhi NCR run smarter, respond faster, and grow on autopilot.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#contact" class="btn-primary">⚡ BOOK FREE DEMO</a>
+      <a href="#demo" class="btn-secondary">SEE IT LIVE →</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">24/7</span>
+        <span class="stat-label">// AUTOMATION</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">3X</span>
+        <span class="stat-label">// FASTER RESPONSE</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">₹999</span>
+        <span class="stat-label">// STARTS AT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="avatar-container">
+      <div class="data-point">// NODE_01 ACTIVE</div>
+      <div class="data-point">FLOW: 0x4f2a...</div>
+      <div class="data-point">AI_CORE: ONLINE</div>
+      <div class="data-point">MSG_RATE: 347/min</div>
+
+      <div class="avatar-rings">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+
+      <!-- 3D PHOTO AVATAR — replace YOUR_PHOTO.jpg with your image file -->
+      <div class="avatar-3d-wrapper" id="avatar3d">
+        <div class="avatar-photo-frame">
+              <img src="YOUR_PHOTO.jpg"  class="avatar-photo" alt="Harsh Kumar">
+          <div class="avatar-scan"></div>
+          <div class="avatar-holo-overlay"></div>
+        </div>
+      </div>
+
+      <div class="avatar-label">// HARSHLABS_AI_OPERATOR_v2.6</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header">
+    <span class="section-tag">// WHAT I BUILD</span>
+    <h2 class="section-title">Automation <span>Services</span></h2>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <span class="service-icon">💬</span>
+      <div class="service-title">WhatsApp AI Automation</div>
+      <p class="service-desc">Auto-reply, appointment booking, order tracking, and lead capture — all running 24/7 on your WhatsApp Business number without you lifting a finger.</p>
+      <span class="service-tag">MOST POPULAR</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">📱</span>
+      <div class="service-title">Instagram DM Automation</div>
+      <p class="service-desc">Automatically respond to DMs, convert story replies into leads, and send product info — so every follower gets a reply within seconds.</p>
+      <span class="service-tag">HIGH ROI</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🎯</span>
+      <div class="service-title">Lead Capture Bots</div>
+      <p class="service-desc">Custom bots that collect name, number, and interest — then auto-store leads to Google Sheets and send you instant notifications.</p>
+      <span class="service-tag">CONVERTS VISITORS</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">⚙️</span>
+      <div class="service-title">Business Workflow Automation</div>
+      <p class="service-desc">Connect your tools — forms, spreadsheets, WhatsApp, email — into one smart pipeline. Eliminate manual work, reduce errors, scale operations.</p>
+      <span class="service-tag">CUSTOM BUILD</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="section-header">
+    <span class="section-tag">// INTERACTIVE PREVIEW</span>
+    <h2 class="section-title">See The <span>Bot In Action</span></h2>
+  </div>
+
+  <div class="demo-wrapper">
+    <div class="demo-info">
+      <h3>Try a Live Demo</h3>
+      <p>Select a business type to see how the AI automation responds to real customer queries. This is what your customers will experience — instant, intelligent replies.</p>
+      <div class="demo-scenarios">
+        <button class="scenario-btn active" onclick="loadScenario('restaurant')">🍽️ Restaurant Order Bot</button>
+        <button class="scenario-btn" onclick="loadScenario('gym')">🏋️ Gym Lead Capture</button>
+        <button class="scenario-btn" onclick="loadScenario('realestate')">🏠 Real Estate Inquiry</button>
+        <button class="scenario-btn" onclick="loadScenario('coaching')">📚 Coaching Institute Bot</button>
+      </div>
+    </div>
+
+    <div class="chatbox">
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div>
+          <div class="chat-name">HARSHLABS AI BOT</div>
+          <div class="chat-status">● ONLINE — POWERED BY AI</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-header">
+    <span class="section-tag">// TOOLS I USE</span>
+    <h2 class="section-title">Tech <span>Stack</span></h2>
+  </div>
+
+  <div class="stack-grid">
+    <div class="stack-item">
+      <span class="stack-icon">🔄</span>
+      <div class="stack-name">n8n</div>
+    </div>
+    <div class="stack-item">
+      <span class="stack-icon">🔗</span>
+      <div class="stack-name">Make.com</div>
+    </div>
+    <div class="stack-item">
+      <span class="stack-icon">🤖</span>
+      <div class="stack-name">Local AI Models</div>
+    </div>
+    <div class="stack-item">
+      <span class="stack-icon">💬</span>
+      <div class="stack-name">WhatsApp API</div>
+    </div>
+    <div class="stack-item">
+      <span class="stack-icon">🧠</span>
+      <div class="stack-name">LLM Studio</div>
+    </div>
+    <div class="stack-item">
+      <span class="stack-icon">📊</span>
+      <div class="stack-name">Google Sheets</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-card">
+    <h2 class="contact-title">Ready to Automate?</h2>
+    <p class="contact-sub">Book a free demo. I'll show you exactly how automation can work for your business — in 20 minutes.</p>
+    <div class="contact-buttons">
+      <a href="https://wa.me/919560965780" class="contact-btn whatsapp">📱 WhatsApp</a>
+      <a href="https://instagram.com/harshlabs.ai" class="contact-btn instagram">📸 Instagram</a>
+      <a href="/cdn-cgi/l/email-protection#660e0714150e260e0714150e0a07041548070f" class="contact-btn email">📧 Email</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>HARSHLABS.AI</strong> — AI AUTOMATION FOR LOCAL BUSINESSES · GHAZIABAD, DELHI NCR · © 2026
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let rx = 0, ry = 0, mx = 0, my = 0;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  cursor.style.left = '0px'; cursor.style.top = '0px';
+
+  function animateCursor() {
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%, -50%) scale(2)';
+      ring.style.width = '60px'; ring.style.height = '60px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+      ring.style.width = '36px'; ring.style.height = '36px';
+    });
+  });
+
+  // Particle system
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particles = Array.from({ length: 60 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 1.5 + 0.5,
+    opacity: Math.random() * 0.4 + 0.1,
+    color: Math.random() > 0.5 ? '0,212,255' : '180,0,255'
+  }));
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},${p.opacity})`;
+      ctx.fill();
+    });
+
+    // Connection lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,212,255,${0.08 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // ── 3D AVATAR EFFECTS ──────────────────────────────────────────────────
+  const avatar3d = document.getElementById('avatar3d');
+  let mouseX = 0, mouseY = 0;
+  let scrollRotY = 0;
+  let floatOffset = 0;
+  let floatDir = 1;
+  let lastTime = 0;
+
+  // Mouse tilt — avatar tilts toward where mouse points
+  document.addEventListener('mousemove', e => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    mouseX = ((e.clientX - cx) / cx) * 14;   // max ±14deg horizontal
+    mouseY = ((e.clientY - cy) / cy) * -10;  // max ±10deg vertical
+  });
+
+  // Scroll rotate — rotates on Y axis as user scrolls
+  window.addEventListener('scroll', () => {
+    scrollRotY = (window.scrollY / document.body.scrollHeight) * 360;
+  });
+
+  // Float animation — smooth sine wave
+  function animateAvatar(time) {
+    const delta = time - lastTime;
+    lastTime = time;
+
+    // Float: smooth up/down using sine
+    floatOffset = Math.sin(time * 0.0015) * 18;
+
+    // Combine all three: float (Y translate) + mouse tilt + scroll rotate
+    if (avatar3d) {
+      avatar3d.style.transform =
+        `translateY(${floatOffset}px) ` +
+        `rotateX(${mouseY}deg) ` +
+        `rotateY(${mouseX + scrollRotY * 0.04}deg)`;
+    }
+    requestAnimationFrame(animateAvatar);
+  }
+  // Remove CSS float animation — JS handles it now
+  if (avatar3d) avatar3d.style.animation = 'none';
+  requestAnimationFrame(animateAvatar);
+  // ───────────────────────────────────────────────────────────────────────
+  const scenarios = {
+    restaurant: [
+      { type: 'user', text: 'Hi, I want to order food for delivery' },
+      { type: 'bot', text: "Namaste! 🍽️ Welcome to Sharma's Restaurant!\n\nI can help you with:\n1. Place a new order\n2. Check order status\n3. View today's menu\n4. Book a table\n\nWhat would you like?" },
+      { type: 'user', text: 'Show me the menu' },
+      { type: 'bot', text: "Today's Special Menu 🌟\n\n🥘 Dal Makhani — ₹180\n🍗 Butter Chicken — ₹320\n🫓 Garlic Naan — ₹40\n🍚 Biryani — ₹280\n\nMinimum order ₹200 | Delivery in 30-40 min\n\nReply with items to order! 📱" },
+    ],
+    gym: [
+      { type: 'user', text: 'I want to join the gym' },
+      { type: 'bot', text: "💪 Welcome to PowerFit Gym!\n\nExcellent decision! Let me get you started.\n\nMay I have your name please? 😊" },
+      { type: 'user', text: 'My name is Rahul' },
+      { type: 'bot', text: "Great, Rahul! 🔥\n\nOur Membership Plans:\n\n🥉 Basic — ₹999/month\n🥈 Pro — ₹1499/month (most popular)\n🥇 Elite — ₹1999/month\n\nWhich plan interests you? I'll connect you with our trainer for a FREE trial session! 🏋️" },
+    ],
+    realestate: [
+      { type: 'user', text: 'Looking for 2BHK in Ghaziabad' },
+      { type: 'bot', text: "🏠 Welcome to SkyView Properties!\n\nGreat choice — Ghaziabad is booming! 📈\n\nFor a 2BHK, we have options in:\n📍 Indirapuram — ₹45-65L\n📍 Vaishali — ₹55-75L\n📍 Crossings Republik — ₹35-50L\n\nWhat's your budget range?" },
+      { type: 'user', text: 'Budget is around 50 lakhs' },
+      { type: 'bot', text: "Perfect! 🎯 I have 3 properties matching your budget right now.\n\nShall I send you the details + photos on WhatsApp?\n\nAlso, our agent can schedule a site visit this weekend! 🗓️\n\nYour number?" },
+    ],
+    coaching: [
+      { type: 'user', text: 'Courses for class 12 PCM?' },
+      { type: 'bot', text: "📚 Welcome to Apex Coaching!\n\nYes! We have excellent Class 12 PCM batches:\n\n🎓 Regular Batch — Mon, Wed, Fri\n⚡ Crash Course — Weekends only\n🏠 Online Live — Flexible timing\n\nAll batches include: Study material + Tests + Doubt sessions\n\nWhich batch suits you?" },
+      { type: 'user', text: 'What is the fee?' },
+      { type: 'bot', text: "💰 Fee Structure:\n\n📖 Regular — ₹3,500/month\n⚡ Crash — ₹4,999 (full course)\n💻 Online — ₹2,999/month\n\nWe're offering FREE demo class this week! 🎁\n\nBook your demo? Just share your name + school! 🙏" },
+    ]
+  };
+
+  let currentScenario = 'restaurant';
+  let chatIndex = 0;
+  let chatTimer = null;
+
+  function loadScenario(name) {
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    currentScenario = name;
+    chatIndex = 0;
+    clearTimeout(chatTimer);
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = '';
+    runChat();
+  }
+
+  function addMessage(msg) {
+    const chatMessages = document.getElementById('chatMessages');
+    const el = document.createElement('div');
+    el.className = `msg ${msg.type}`;
+    el.innerHTML = `<span class="sender">${msg.type === 'user' ? '// CUSTOMER' : '// AI BOT'}</span>${msg.text.replace(/\n/g, '<br>')}`;
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showTyping() {
+    const chatMessages = document.getElementById('chatMessages');
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    el.id = 'typing';
+    el.innerHTML = `<span class="sender">// AI BOT</span><div class="typing-indicator"><span></span><span></span><span></span></div>`;
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  function runChat() {
+    const msgs = scenarios[currentScenario];
+    if (chatIndex >= msgs.length) {
+      chatTimer = setTimeout(() => {
+        document.getElementById('chatMessages').innerHTML = '';
+        chatIndex = 0;
+        runChat();
+      }, 4000);
+      return;
+    }
+    const msg = msgs[chatIndex];
+    if (msg.type === 'user') {
+      chatTimer = setTimeout(() => {
+        addMessage(msg);
+        chatIndex++;
+        runChat();
+      }, chatIndex === 0 ? 800 : 1200);
+    } else {
+      chatTimer = setTimeout(() => {
+        showTyping();
+        chatTimer = setTimeout(() => {
+          removeTyping();
+          addMessage(
