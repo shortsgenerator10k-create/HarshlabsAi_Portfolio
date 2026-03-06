@@ -295,6 +295,8 @@
   /* Hero avatar area */
   .hero-visual {
     position: absolute; right: 0; top: 0; bottom: 0;
+   overflow: hidden;
+clip-path: inset(0);
     width: 50%;
     display: flex; align-items: center; justify-content: center;
     z-index: 1;
@@ -349,7 +351,7 @@
     display: flex; align-items: center; justify-content: center;
     transform-style: preserve-3d;
     will-change: transform;
-    /* float animation — JS adds scroll-rotate and mouse-tilt on top */
+    /contain: layout;* float animation — JS adds scroll-rotate and mouse-tilt on top */
     animation: avatarFloat 4s ease-in-out infinite;
   }
 
@@ -1336,3 +1338,4 @@
           removeTyping();
 
           addMessage(
+
